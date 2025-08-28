@@ -172,6 +172,10 @@ class StudentLoanPreprocessor:
     def prepare_features(self, df: pd.DataFrame, fit: bool = True) -> pd.DataFrame:
         """Complete preprocessing pipeline."""
         
+        # Remove ID columns and other non-feature columns
+        columns_to_remove = ['borrower_id']  # Add other ID columns here if needed
+        df = df.drop(columns=[col for col in columns_to_remove if col in df.columns], errors='ignore')
+        
         # Create additional features
         df = self.create_additional_features(df)
         

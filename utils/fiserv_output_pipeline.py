@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 class FiServOutputPipeline:
     """Pipeline to generate FiServ-ready delinquency prediction dataset."""
     
-    def __init__(self, model_dir: str = "../models", output_dir: str = "../data/fiserv_output"):
+    def __init__(self, model_dir: str = "models", output_dir: str = "data/fiserv_output"):
         """Initialize the FiServ output pipeline."""
         self.model_dir = model_dir
         self.output_dir = output_dir

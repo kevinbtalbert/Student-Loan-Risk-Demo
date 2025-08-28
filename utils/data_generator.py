@@ -44,15 +44,15 @@ class StudentLoanDataGenerator:
         
         data = {
             'borrower_id': [f'BOR_{i:06d}' for i in range(1, n_borrowers + 1)],
-            'age': np.random.normal(28, 8, n_borrowers).astype(int).clip(18, 65),
+            'age': np.clip(np.random.normal(28, 8, n_borrowers).astype(int), 18, 65),
             'gender': np.random.choice(['M', 'F', 'O'], n_borrowers, p=[0.45, 0.52, 0.03]),
             'state': np.random.choice(self.states, n_borrowers),
-            'credit_score_at_origination': np.random.normal(650, 80, n_borrowers).astype(int).clip(300, 850),
+            'credit_score_at_origination': np.clip(np.random.normal(650, 80, n_borrowers).astype(int), 300, 850),
             'annual_income': np.random.lognormal(10.5, 0.6, n_borrowers).astype(int),
             'employment_status': np.random.choice(
                 self.employment_status, n_borrowers, p=[0.65, 0.15, 0.12, 0.08]
             ),
-            'dependents': np.random.poisson(1.2, n_borrowers).clip(0, 8),
+            'dependents': np.clip(np.random.poisson(1.2, n_borrowers), 0, 8),
             'housing_status': np.random.choice(
                 ['Own', 'Rent', 'Family'], n_borrowers, p=[0.35, 0.55, 0.10]
             )
@@ -71,7 +71,7 @@ class StudentLoanDataGenerator:
             'degree_type': np.random.choice(self.degree_types, n_borrowers),
             'major': np.random.choice(self.majors, n_borrowers),
             'graduation_year': np.random.randint(2010, 2024, n_borrowers),
-            'gpa': np.random.normal(3.2, 0.5, n_borrowers).clip(2.0, 4.0),
+            'gpa': np.clip(np.random.normal(3.2, 0.5, n_borrowers), 2.0, 4.0),
             'school_type': np.random.choice(['Public', 'Private'], n_borrowers, p=[0.7, 0.3]),
             'completion_status': np.random.choice(
                 ['Completed', 'Dropped Out', 'Transferred'], n_borrowers, p=[0.75, 0.15, 0.10]
@@ -216,11 +216,12 @@ class StudentLoanDataGenerator:
         ).astype(int)
         
         # Create risk score (0-100)
-        borrower_stats['risk_score'] = (
+        borrower_stats['risk_score'] = np.clip(
             borrower_stats['missed_payment_rate'] * 40 +
             borrower_stats['recent_avg_days_late'] / 30 * 30 +
-            (borrower_stats['max_days_late'] > 60).astype(int) * 30
-        ).clip(0, 100).round(1)
+            (borrower_stats['max_days_late'] > 60).astype(int) * 30,
+            0, 100
+        ).round(1)
         
         return borrower_stats.reset_index()
     
