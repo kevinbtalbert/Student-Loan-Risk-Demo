@@ -98,7 +98,7 @@ class StudentLoanDataGenerator:
                 )
                 
                 loan_term = np.random.choice([120, 240, 360], p=[0.2, 0.5, 0.3])  # 10, 20, 30 years
-                interest_rate = np.random.normal(5.5, 1.5).clip(2.0, 12.0)
+                interest_rate = np.clip(np.random.normal(5.5, 1.5), 2.0, 12.0)
                 
                 loans.append({
                     'loan_id': f'LOAN_{len(loans)+1:08d}',

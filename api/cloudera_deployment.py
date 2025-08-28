@@ -373,7 +373,7 @@ if __name__ == "__main__":
         
         return script
     
-    def save_deployment_files(self, output_dir: str = "../deployment") -> None:
+    def save_deployment_files(self, output_dir: str = "deployment") -> None:
         """Save all deployment files to the specified directory."""
         
         import os
