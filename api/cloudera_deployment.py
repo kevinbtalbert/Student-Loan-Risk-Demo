@@ -22,7 +22,7 @@ class ClouderaModelDeployment:
         self.config = {
             "model": {
                 "name": "student-loan-delinquency-predictor",
-                "description": "ML model to predict student loan delinquency risk for Maximus/FiServ partnership",
+                "description": "ML model to predict student loan delinquency risk for LoanTech Solutions/StudentCare Solutions partnership",
                 "version": "1.0.0",
                 "framework": "scikit-learn",
                 "python_version": "3.11",

@@ -2,11 +2,11 @@
 """
 Student Loan Risk Demo - Main Execution Script
 
-This script demonstrates the complete workflow for the Maximus/FiServ
+This script demonstrates the complete workflow for the LoanTech Solutions/StudentCare Solutions
 student loan delinquency risk prediction project.
 
 Usage:
-    python main.py [--generate-data] [--train-models] [--create-fiserv-output] [--deploy]
+    python main.py [--generate-data] [--train-models] [--create-studentcare-output] [--deploy]
 """
 
 import os
@@ -21,21 +21,21 @@ sys.path.append('utils')
 from data_generator import StudentLoanDataGenerator
 from data_preprocessing import StudentLoanPreprocessor
 from ml_models import StudentLoanRiskModels
-from fiserv_output_pipeline import FiServOutputPipeline
+from fiserv_output_pipeline import StudentCareOutputPipeline
 
 
 def print_banner():
     """Print project banner."""
     banner = """
-    ╔══════════════════════════════════════════════════════════════╗
-    ║                   STUDENT LOAN RISK DEMO                    ║
-    ║                                                              ║
-    ║  Client: Maximus (Student Loan Processing)                  ║
-    ║  Partner: FiServ (Follow-up with At-Risk Students)          ║
-    ║  Platform: Cloudera Machine Learning                        ║
-    ║                                                              ║
-    ║  Objective: Predict student loan delinquency risk           ║
-    ╚══════════════════════════════════════════════════════════════╝
+    ╔═══════════════════════════════════════════════════════════════════╗
+    ║                   STUDENT LOAN RISK DEMO                          ║
+    ║                                                                   ║
+    ║  Client: LoanTech Solutions (Student Loan Processing)             ║
+    ║  Partner: StudentCare Solutions (Follow-up with At-Risk Students) ║
+    ║  Platform: Cloudera Machine Learning                              ║
+    ║                                                                   ║
+    ║  Objective: Predict student loan delinquency risk                 ║
+    ╚═══════════════════════════════════════════════════════════════════╝
     """
     print(banner)
 
@@ -128,11 +128,11 @@ def train_models() -> bool:
         return False
 
 
-def create_fiserv_output() -> bool:
-    """Step 3: Generate FiServ-ready output dataset."""
+def create_studentcare_output() -> bool:
+    """Step 3: Generate StudentCare-ready output dataset."""
     
     print(f"\n{'='*60}")
-    print("STEP 3: CREATING FISERV OUTPUT")
+    print("STEP 3: CREATING STUDENTCARE OUTPUT")
     print(f"{'='*60}")
     
     try:
@@ -149,10 +149,10 @@ def create_fiserv_output() -> bool:
             print("Proceeding with mock predictions...")
         
         # Initialize pipeline
-        pipeline = FiServOutputPipeline(model_dir=models_path)
+        pipeline = StudentCareOutputPipeline(model_dir=models_path)
         
         # Run complete pipeline
-        print("Running FiServ output pipeline...")
+        print("Running StudentCare output pipeline...")
         result = pipeline.run_complete_pipeline(
             input_data_path=data_path,
             filter_high_risk=True,
@@ -160,10 +160,10 @@ def create_fiserv_output() -> bool:
         )
         
         if result['status'] == 'success':
-            print(f"✓ FiServ output created successfully!")
+            print(f"✓ StudentCare output created successfully!")
             print(f"  - Records processed: {result['records_processed']}")
             print(f"  - High-risk identified: {result['high_risk_identified']}")
-            print(f"  - Output files created in data/fiserv_output/")
+            print(f"  - Output files created in data/studentcare_output/")
             
             # Print summary statistics
             summary = result['summary']
@@ -179,7 +179,7 @@ def create_fiserv_output() -> bool:
             return False
         
     except Exception as e:
-        print(f"✗ Error creating FiServ output: {str(e)}")
+        print(f"✗ Error creating StudentCare output: {str(e)}")
         return False
 
 
@@ -221,8 +221,8 @@ def main():
                        help='Generate synthetic dataset')
     parser.add_argument('--train-models', action='store_true', 
                        help='Train ML models')
-    parser.add_argument('--create-fiserv-output', action='store_true', 
-                       help='Create FiServ output dataset')
+    parser.add_argument('--create-studentcare-output', action='store_true', 
+                       help='Create StudentCare output dataset')
     parser.add_argument('--deploy', action='store_true', 
                        help='Generate Cloudera deployment files')
     parser.add_argument('--all', action='store_true', 
@@ -237,7 +237,7 @@ def main():
     
     # Determine which steps to run
     run_all = args.all or not any([args.generate_data, args.train_models, 
-                                  args.create_fiserv_output, args.deploy])
+                                  args.create_studentcare_output, args.deploy])
     
     success_count = 0
     total_steps = 0
@@ -254,10 +254,10 @@ def main():
         if train_models():
             success_count += 1
     
-    # Step 3: Create FiServ output
-    if run_all or args.create_fiserv_output:
+    # Step 3: Create StudentCare output
+    if run_all or args.create_studentcare_output:
         total_steps += 1
-        if create_fiserv_output():
+        if create_studentcare_output():
             success_count += 1
     
     # Step 4: Deploy
@@ -278,7 +278,7 @@ def main():
         print("\nKey deliverables:")
         print("  - Synthetic dataset with realistic borrower data")
         print("  - Trained ML models for delinquency prediction")
-        print("  - FiServ-ready output with risk assessments")
+        print("  - StudentCare-ready output with risk assessments")
         print("  - Cloudera ML deployment configuration")
         
     else:

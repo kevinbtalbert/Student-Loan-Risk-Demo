@@ -1,18 +1,18 @@
 # Student Loan Risk Demo
 
-A comprehensive machine learning solution for predicting student loan delinquency risk, developed for Maximus (student loan processing) in partnership with FiServ (follow-up services).
+A comprehensive machine learning solution for predicting student loan delinquency risk, developed for LoanTech Solutions (student loan processing) in partnership with StudentCare Solutions (follow-up services).
 
 ## 🎯 Project Overview
 
-This project demonstrates a complete ML pipeline for identifying students at risk of loan delinquency, enabling proactive intervention by FiServ to help borrowers stay current on their payments.
+This project demonstrates a complete ML pipeline for identifying students at risk of loan delinquency, enabling proactive intervention by StudentCare Solutions to help borrowers stay current on their payments.
 
 ### Key Stakeholders
-- **Maximus**: Student loan processing company (data provider)
-- **FiServ**: Follow-up services provider (recipient of risk predictions)
+- **LoanTech Solutions**: Student loan processing company (data provider)
+- **StudentCare Solutions**: Follow-up services provider (recipient of risk predictions)
 - **Platform**: Cloudera Machine Learning
 
 ### Objective
-Deliver accurate delinquency risk predictions to enable FiServ to proactively contact at-risk borrowers and prevent defaults.
+Deliver accurate delinquency risk predictions to enable StudentCare Solutions to proactively contact at-risk borrowers and prevent defaults.
 
 ## 🏗️ Architecture
 
@@ -25,7 +25,7 @@ Deliver accurate delinquency risk predictions to enable FiServ to proactively co
                                                            │
                                                            ▼
                                                ┌─────────────────────┐
-                                               │  FiServ Output      │
+                                               │  StudentCare Output │
                                                │  (Risk Assessments) │
                                                └─────────────────────┘
 ```
@@ -42,7 +42,7 @@ Student-Loan-Risk-Demo/
 │   ├── data_generator.py       # Synthetic data generation
 │   ├── data_preprocessing.py   # Feature engineering pipeline
 │   ├── ml_models.py           # ML model training & evaluation
-│   └── fiserv_output_pipeline.py # FiServ output generation
+│   └── fiserv_output_pipeline.py # StudentCare output generation
 │
 ├── api/                        # Cloudera ML API integration
 │   ├── cloudera_model_api.py   # Model serving API
@@ -56,7 +56,7 @@ Student-Loan-Risk-Demo/
 ├── data/                       # Data storage
 │   ├── synthetic/             # Generated datasets
 │   ├── processed/             # Preprocessed data
-│   └── fiserv_output/         # Final deliverables
+│   └── studentcare_output/   # Final deliverables
 │
 ├── models/                     # Trained models
 │   ├── *_model.joblib         # Serialized models
@@ -109,8 +109,8 @@ python main.py --generate-data --borrowers 10000
 # Train ML models
 python main.py --train-models
 
-# Create FiServ output
-python main.py --create-fiserv-output
+# Create StudentCare output
+python main.py --create-studentcare-output
 
 # Generate deployment files
 python main.py --deploy
@@ -141,9 +141,9 @@ python main.py --deploy
 - **Risk Scores** (0-100) for each borrower
 - **Risk Categories**: Low, Medium, High, Critical
 - **Delinquency Probability** with confidence intervals
-- **Recommended Actions** for FiServ intervention
+- **Recommended Actions** for StudentCare intervention
 
-### 4. FiServ Integration
+### 4. StudentCare Integration
 - **Standardized output format** with contact information
 - **Priority levels** for intervention urgency
 - **Action recommendations** based on risk assessment
@@ -168,7 +168,7 @@ The trained models achieve the following performance metrics:
 
 **Note:** These are example performance metrics. Actual results may vary based on the synthetic data generated.
 
-## 📋 FiServ Output Format
+## 📋 StudentCare Output Format
 
 The final deliverable includes the following fields for each at-risk borrower:
 
@@ -195,7 +195,7 @@ Models can be configured in `utils/ml_models.py`:
 - Performance thresholds
 
 ### Risk Thresholds
-Risk assessment can be tuned in `utils/fiserv_output_pipeline.py`:
+Risk assessment can be tuned in `utils/studentcare_output_pipeline.py`:
 - Risk score cutoffs
 - Action triggers
 - Priority assignments
@@ -240,9 +240,9 @@ print(f"Risk Category: {prediction['risk_category']}")
 
 ### Batch Processing
 ```python
-from utils.fiserv_output_pipeline import FiServOutputPipeline
+from utils.studentcare_output_pipeline import StudentCareOutputPipeline
 
-pipeline = FiServOutputPipeline()
+pipeline = StudentCareOutputPipeline()
 result = pipeline.run_complete_pipeline(
     input_data_path="data/borrowers.csv",
     filter_high_risk=True,
@@ -297,8 +297,8 @@ For questions about this demo or implementation:
 
 ## 📝 License
 
-This is a demonstration project for Maximus/FiServ partnership.
+This is a demonstration project for LoanTech Solutions/StudentCare Solutions partnership.
 
 ---
 
-**Built with ❤️ for predictive analytics in student loan risk management**
+**Built for predictive analytics in student loan risk management**

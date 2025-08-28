@@ -54,7 +54,7 @@ class ClouderaStudentLoanRiskAPI:
         self.model_info = {
             "name": "Student Loan Delinquency Risk Predictor",
             "version": "1.0.0",
-            "description": "ML model to predict student loan delinquency risk for Maximus/FiServ",
+            "description": "ML model to predict student loan delinquency risk for LoanTech Solutions/StudentCare Solutions",
             "created_date": datetime.now().isoformat(),
             "input_schema": self._get_input_schema(),
             "output_schema": self._get_output_schema()

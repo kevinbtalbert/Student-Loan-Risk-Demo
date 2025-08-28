@@ -92,7 +92,7 @@ python main.py --all
 # Or run individual steps
 python main.py --generate-data
 python main.py --train-models
-python main.py --create-fiserv-output
+python main.py --create-studentcare-output
 ```
 
 ## 📝 **Files Updated for Python 3.11**

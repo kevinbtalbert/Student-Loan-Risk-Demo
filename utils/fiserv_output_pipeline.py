@@ -1,8 +1,8 @@
 """
-FiServ Output Pipeline for Student Loan Risk Predictions
+StudentCare Output Pipeline for Student Loan Risk Predictions
 
-This module creates the final output dataset for FiServ with delinquency predictions
-and risk assessments for student loan borrowers from Maximus.
+This module creates the final output dataset for StudentCare Solutions with delinquency predictions
+and risk assessments for student loan borrowers from LoanTech Solutions.
 """
 
 import pandas as pd
@@ -25,11 +25,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class FiServOutputPipeline:
-    """Pipeline to generate FiServ-ready delinquency prediction dataset."""
+class StudentCareOutputPipeline:
+    """Pipeline to generate StudentCare-ready delinquency prediction dataset."""
     
-    def __init__(self, model_dir: str = "models", output_dir: str = "data/fiserv_output"):
-        """Initialize the FiServ output pipeline."""
+    def __init__(self, model_dir: str = "models", output_dir: str = "data/studentcare_output"):
+        """Initialize the StudentCare output pipeline."""
         self.model_dir = model_dir
         self.output_dir = output_dir
         self.preprocessor = None
@@ -38,8 +38,8 @@ class FiServOutputPipeline:
         # Create output directory
         os.makedirs(output_dir, exist_ok=True)
         
-        # FiServ output specifications
-        self.fiserv_schema = {
+        # StudentCare output specifications
+        self.studentcare_schema = {
             "borrower_id": "string",
             "first_name": "string",
             "last_name": "string",
@@ -64,13 +64,13 @@ class FiServOutputPipeline:
             "next_due_date": "string",
             "total_owed": "number",
             "processing_date": "string",
-            "maximus_account_status": "string"
+            "loantech_account_status": "string"
         }
     
     def load_models(self) -> bool:
         """Load trained models and preprocessor."""
         try:
-            logger.info("Loading models and preprocessor for FiServ pipeline...")
+            logger.info("Loading models and preprocessor for StudentCare pipeline...")
             
             # Initialize and load ML models
             self.ml_models = StudentLoanRiskModels()
@@ -165,12 +165,12 @@ class FiServOutputPipeline:
         df_contact['best_contact_time'] = np.random.choice(contact_times, n_borrowers)
         
         # Account status
-        df_contact['maximus_account_status'] = np.random.choice(account_statuses, n_borrowers)
+        df_contact['loantech_account_status'] = np.random.choice(account_statuses, n_borrowers)
         
         return df_contact
     
     def generate_loan_details(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Generate additional loan details for FiServ output."""
+        """Generate additional loan details for StudentCare output."""
         
         df_loans = df.copy()
         
@@ -259,7 +259,7 @@ class FiServOutputPipeline:
             return df_pred
     
     def determine_recommended_actions(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Determine recommended actions for FiServ based on risk assessment."""
+        """Determine recommended actions for StudentCare based on risk assessment."""
         
         df_actions = df.copy()
         
@@ -297,10 +297,10 @@ class FiServOutputPipeline:
         
         return df_actions
     
-    def create_fiserv_dataset(self, input_df: pd.DataFrame) -> pd.DataFrame:
-        """Create the complete FiServ-ready dataset."""
+    def create_studentcare_dataset(self, input_df: pd.DataFrame) -> pd.DataFrame:
+        """Create the complete StudentCare-ready dataset."""
         
-        logger.info("Creating FiServ-ready dataset...")
+        logger.info("Creating StudentCare-ready dataset...")
         
         # Start with input data
         df = input_df.copy()
@@ -320,25 +320,25 @@ class FiServOutputPipeline:
         # Add processing metadata
         df['processing_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
-        # Select and order columns according to FiServ schema
-        fiserv_columns = list(self.fiserv_schema.keys())
+        # Select and order columns according to StudentCare schema
+        studentcare_columns = list(self.studentcare_schema.keys())
         
         # Only include columns that exist in the dataframe
-        available_columns = [col for col in fiserv_columns if col in df.columns]
-        df_fiserv = df[available_columns].copy()
+        available_columns = [col for col in studentcare_columns if col in df.columns]
+        df_studentcare = df[available_columns].copy()
         
         # Round numerical columns
-        for col in df_fiserv.columns:
-            if df_fiserv[col].dtype in ['float64', 'float32']:
-                df_fiserv[col] = df_fiserv[col].round(2)
+        for col in df_studentcare.columns:
+            if df_studentcare[col].dtype in ['float64', 'float32']:
+                df_studentcare[col] = df_studentcare[col].round(2)
         
-        logger.info(f"FiServ dataset created with {len(df_fiserv)} records and {len(available_columns)} columns")
+        logger.info(f"StudentCare dataset created with {len(df_studentcare)} records and {len(available_columns)} columns")
         
-        return df_fiserv
+        return df_studentcare
     
     def filter_high_risk_borrowers(self, df: pd.DataFrame, 
                                   min_risk_score: float = 50.0) -> pd.DataFrame:
-        """Filter dataset to include only high-risk borrowers for FiServ."""
+        """Filter dataset to include only high-risk borrowers for StudentCare."""
         
         # Filter based on risk criteria
         high_risk_mask = (
@@ -354,7 +354,7 @@ class FiServOutputPipeline:
         return df_high_risk
     
     def generate_summary_report(self, df: pd.DataFrame) -> Dict[str, Any]:
-        """Generate summary report for FiServ dataset."""
+        """Generate summary report for StudentCare dataset."""
         
         summary = {
             "processing_date": datetime.now().isoformat(),
@@ -376,8 +376,8 @@ class FiServOutputPipeline:
         
         return summary
     
-    def save_fiserv_outputs(self, df: pd.DataFrame, filename_prefix: str = "fiserv_delinquency_predictions") -> Dict[str, str]:
-        """Save FiServ outputs in multiple formats."""
+    def save_studentcare_outputs(self, df: pd.DataFrame, filename_prefix: str = "studentcare_delinquency_predictions") -> Dict[str, str]:
+        """Save StudentCare outputs in multiple formats."""
         
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         
@@ -389,7 +389,7 @@ class FiServOutputPipeline:
             "summary": os.path.join(self.output_dir, f"{filename_prefix}_summary_{timestamp}.json")
         }
         
-        # Save CSV (primary format for FiServ)
+        # Save CSV (primary format for StudentCare)
         df.to_csv(files["csv"], index=False)
         
         # Save Excel with multiple sheets
@@ -413,7 +413,7 @@ class FiServOutputPipeline:
         with open(files["summary"], 'w') as f:
             json.dump(summary_report, f, indent=2, default=str)
         
-        logger.info(f"FiServ outputs saved:")
+        logger.info(f"StudentCare outputs saved:")
         for format_type, filepath in files.items():
             logger.info(f"  {format_type.upper()}: {filepath}")
         
@@ -422,9 +422,9 @@ class FiServOutputPipeline:
     def run_complete_pipeline(self, input_data_path: str, 
                             filter_high_risk: bool = True,
                             min_risk_score: float = 50.0) -> Dict[str, Any]:
-        """Run the complete FiServ output pipeline."""
+        """Run the complete StudentCare output pipeline."""
         
-        logger.info("Starting FiServ output pipeline...")
+        logger.info("Starting StudentCare output pipeline...")
         
         try:
             # Load models
@@ -439,28 +439,28 @@ class FiServOutputPipeline:
             
             logger.info(f"Loaded {len(input_df)} borrower records")
             
-            # Create FiServ dataset
-            fiserv_df = self.create_fiserv_dataset(input_df)
+            # Create StudentCare dataset
+            studentcare_df = self.create_studentcare_dataset(input_df)
             
             # Filter to high-risk borrowers if requested
             if filter_high_risk:
-                fiserv_df = self.filter_high_risk_borrowers(fiserv_df, min_risk_score)
+                studentcare_df = self.filter_high_risk_borrowers(studentcare_df, min_risk_score)
             
             # Save outputs
-            output_files = self.save_fiserv_outputs(fiserv_df)
+            output_files = self.save_studentcare_outputs(studentcare_df)
             
             # Generate summary
-            summary = self.generate_summary_report(fiserv_df)
+            summary = self.generate_summary_report(studentcare_df)
             
             result = {
                 "status": "success",
                 "records_processed": len(input_df),
-                "high_risk_identified": len(fiserv_df),
+                "high_risk_identified": len(studentcare_df),
                 "output_files": output_files,
                 "summary": summary
             }
             
-            logger.info("FiServ pipeline completed successfully")
+            logger.info("StudentCare pipeline completed successfully")
             return result
             
         except Exception as e:
@@ -472,10 +472,10 @@ class FiServOutputPipeline:
 
 
 def main():
-    """Test the FiServ output pipeline."""
+    """Test the StudentCare output pipeline."""
     
     # Initialize pipeline
-    pipeline = FiServOutputPipeline()
+    pipeline = StudentCareOutputPipeline()
     
     # Test with synthetic data
     input_data_path = "../data/synthetic/student_loan_master_dataset.csv"

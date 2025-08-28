@@ -278,7 +278,7 @@ def model_info() -> Dict[str, Any]:
         info = {
             "name": "Student Loan Delinquency Risk Predictor",
             "version": "1.0.0",
-            "description": "ML model to predict student loan delinquency risk for Maximus/FiServ",
+            "description": "ML model to predict student loan delinquency risk for LoanTech Solutions/StudentCare Solutions",
             "framework": "scikit-learn",
             "created_date": datetime.now().isoformat(),
             "input_schema": _get_input_schema(),
