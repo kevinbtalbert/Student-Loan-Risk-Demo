@@ -18,9 +18,9 @@ Deliver accurate delinquency risk predictions to enable FiServ to proactively co
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────────┐
-│  Data Generation │───▶│   ML Training    │───▶│  Risk Prediction    │
-│  (Synthetic)     │    │  (Multiple       │    │  (Cloudera API)     │
-│                  │    │   Algorithms)    │    │                     │
+│ Data Generation │───▶│   ML Training    │───▶│  Risk Prediction    │
+│ (Synthetic)     │    │  (Multiple       │    │  (Cloudera API)     │
+│                 │    │   Algorithms)    │    │                     │
 └─────────────────┘    └──────────────────┘    └─────────────────────┘
                                                            │
                                                            ▼
@@ -86,10 +86,12 @@ Student-Loan-Risk-Demo/
    cd Student-Loan-Risk-Demo
    ```
 
-2. **Install dependencies**
+2. **Install dependencies** (REQUIRED)
    ```bash
    pip install -r requirements.txt
    ```
+   
+   **Note:** You must install dependencies first or you'll get import errors.
 
 3. **Run the complete pipeline**
    ```bash
@@ -163,6 +165,8 @@ The trained models achieve the following performance metrics:
 | Random Forest | 0.885 | 0.831 | 0.819 | 0.825 |
 | Gradient Boosting | 0.878 | 0.825 | 0.812 | 0.818 |
 | Logistic Regression | 0.856 | 0.798 | 0.785 | 0.791 |
+
+**Note:** These are example performance metrics. Actual results may vary based on the synthetic data generated.
 
 ## 📋 FiServ Output Format
 
