@@ -19,6 +19,14 @@ import traceback
 # Add utils to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
 
+# Try to import CML-specific modules (optional for local development)
+try:
+    import cdsw
+    CML_AVAILABLE = True
+except ImportError:
+    CML_AVAILABLE = False
+    print("Note: CDSW module not available. Running in local development mode.")
+
 try:
     from data_preprocessing import StudentLoanPreprocessor
     from ml_models import StudentLoanRiskModels

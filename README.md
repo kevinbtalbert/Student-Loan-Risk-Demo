@@ -74,7 +74,7 @@ Student-Loan-Risk-Demo/
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.9+
+- Python 3.9+ (tested with 3.11)
 - Cloudera Machine Learning access (for deployment)
 - Required packages (see requirements.txt)
 

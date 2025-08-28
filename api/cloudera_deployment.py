@@ -25,7 +25,7 @@ class ClouderaModelDeployment:
                 "description": "ML model to predict student loan delinquency risk for Maximus/FiServ partnership",
                 "version": "1.0.0",
                 "framework": "scikit-learn",
-                "python_version": "3.9",
+                "python_version": "3.11",
                 "entry_point": "cloudera_model_api.py"
             },
             "resources": {
@@ -36,22 +36,22 @@ class ClouderaModelDeployment:
             "environment": {
                 "name": "student-loan-env",
                 "conda_packages": [
-                    "pandas=2.1.4",
-                    "numpy=1.24.3",
-                    "scikit-learn=1.3.2",
-                    "xgboost=2.0.3",
-                    "matplotlib=3.8.2",
-                    "seaborn=0.13.0",
-                    "plotly=5.17.0",
-                    "shap=0.44.0",
-                    "imbalanced-learn=0.11.0",
-                    "requests=2.31.0",
-                    "pyyaml=6.0.1",
-                    "joblib=1.3.2"
+                    "pandas>=2.1.0",
+                    "numpy>=1.24.0",
+                    "scikit-learn>=1.3.0",
+                    "xgboost>=2.0.0",
+                    "matplotlib>=3.8.0",
+                    "seaborn>=0.13.0",
+                    "plotly>=5.17.0",
+                    "shap>=0.44.0",
+                    "imbalanced-learn>=0.11.0",
+                    "requests>=2.31.0",
+                    "pyyaml>=6.0.0",
+                    "joblib>=1.3.0"
                 ],
                 "pip_packages": [
-                    "cloudml==1.0.0",
-                    "cdsw==1.0.0"
+                    # Note: cloudml and cdsw are pre-installed in CML environments
+                    # Add any additional pip packages here if needed
                 ]
             },
             "deployment": {
