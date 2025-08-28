@@ -72,15 +72,28 @@ class FiServOutputPipeline:
         try:
             logger.info("Loading models and preprocessor for FiServ pipeline...")
             
-            # Initialize preprocessor
-            self.preprocessor = StudentLoanPreprocessor()
-            
             # Initialize and load ML models
             self.ml_models = StudentLoanRiskModels()
             
             if os.path.exists(self.model_dir):
                 self.ml_models.load_models(self.model_dir)
                 logger.info("Models loaded successfully")
+                
+                # Initialize preprocessor and fit it with the original data
+                self.preprocessor = StudentLoanPreprocessor()
+                
+                # Load the original training data to fit the preprocessor
+                data_path = 'data/synthetic/student_loan_master_dataset.csv'
+                if os.path.exists(data_path):
+                    import pandas as pd
+                    df = pd.read_csv(data_path)
+                    # Fit the preprocessor with the same data used for training
+                    self.preprocessor.prepare_training_data(df, test_size=0.2, random_state=42)
+                    logger.info("Preprocessor fitted successfully")
+                else:
+                    logger.warning("Training data not found. Preprocessor will not be fitted.")
+                    return False
+                
                 return True
             else:
                 logger.warning(f"Model directory not found: {self.model_dir}")
@@ -233,8 +246,17 @@ class FiServOutputPipeline:
             
         except Exception as e:
             logger.error(f"Error generating predictions: {str(e)}")
-            # Fallback to mock predictions
-            return self.calculate_delinquency_predictions(df)
+            # Fallback to mock predictions (avoid recursion)
+            logger.warning("Using mock predictions due to prediction error.")
+            df_pred = df.copy()
+            df_pred['delinquency_probability'] = np.random.uniform(0, 1, len(df))
+            df_pred['risk_score'] = df_pred['delinquency_probability'] * 100
+            df_pred['risk_category'] = pd.cut(
+                df_pred['risk_score'],
+                bins=[0, 25, 50, 75, 100],
+                labels=['Low', 'Medium', 'High', 'Critical']
+            )
+            return df_pred
     
     def determine_recommended_actions(self, df: pd.DataFrame) -> pd.DataFrame:
         """Determine recommended actions for FiServ based on risk assessment."""
