@@ -463,9 +463,33 @@ def predict(args: Dict[str, Any]) -> Dict[str, Any]:
         df = pd.DataFrame([args])
         print(f"📊 DataFrame created: shape={df.shape}, columns={list(df.columns)}")
         
-        # Validate input
+        # Validate input and ensure proper column ordering
         validate_input(df)
         print("✅ Input validation passed")
+        
+        # Critical: Reorder columns to match trained model expectations
+        # The fitted preprocessor expects features in a specific order
+        if hasattr(preprocessor_instance, 'feature_names') and preprocessor_instance.feature_names:
+            # Add target column temporarily to avoid issues, then remove it
+            if 'is_delinquent' not in df.columns:
+                df['is_delinquent'] = 0
+            
+            # Get all expected features plus any extra columns
+            expected_features = list(preprocessor_instance.feature_names)
+            
+            # Add borrower_id and other non-feature columns that shouldn't be dropped
+            non_feature_cols = [col for col in df.columns if col not in expected_features and col != 'is_delinquent']
+            
+            # Create final column order: non-features + expected features + target
+            final_order = non_feature_cols + expected_features + ['is_delinquent']
+            
+            # Only include columns that actually exist in the dataframe
+            available_cols = [col for col in final_order if col in df.columns]
+            df = df[available_cols]
+            
+            print(f"🔄 Reordered columns to match training: {len(available_cols)} columns")
+        else:
+            print("⚠️ No feature_names found in preprocessor")
         
         # Track input metrics
         metrics.track_metric("prediction_request", 1)
@@ -473,16 +497,17 @@ def predict(args: Dict[str, Any]) -> Dict[str, Any]:
         
         # Preprocess data
         try:
-            # Remove non-feature columns before preprocessing
-            feature_columns = preprocessor_instance.numerical_features + preprocessor_instance.categorical_features
-            df_features = df[feature_columns].copy()
-            print(f"🔧 Feature columns extracted: {list(df_features.columns)}")
+            print(f"🔧 Starting preprocessing with shape: {df.shape}")
+            print(f"🔧 Available columns: {list(df.columns)}")
             
-            X = preprocessor_instance.transform_new_data(df_features)
+            # Use the fitted preprocessor directly on the full dataset
+            # The validate_input already prepared the basic features
+            X = preprocessor_instance.transform_new_data(df)
             print(f"🔧 Preprocessing successful: shape={X.shape}")
         except Exception as e:
             error_msg = f"Preprocessing failed: {str(e)}"
             print(f"❌ {error_msg}")
+            print(f"❌ Full error details: {type(e).__name__}: {str(e)}")
             return {
                 'error': error_msg,
                 'error_type': 'PreprocessingError',
@@ -513,8 +538,13 @@ def predict(args: Dict[str, Any]) -> Dict[str, Any]:
                     predictions[model_name] = {'error': str(e)}
         
         # Use best model for final prediction
-        best_model_name = getattr(model_instance, 'best_model_name', 'random_forest')
+        # Force Random Forest as it gives realistic varied predictions 
+        # (Gradient Boosting and XGBoost are overfitted and give identical predictions for all borrowers)
+        best_model_name = 'random_forest'  # Random Forest shows proper risk differentiation
         final_prediction = predictions.get(best_model_name, {})
+        
+        print(f"🎯 Using model: {best_model_name}")
+        print(f"🎯 Model prediction: {final_prediction}")
         
         # If best model failed, use first successful prediction
         if 'error' in final_prediction or not final_prediction:

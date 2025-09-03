@@ -199,24 +199,39 @@ class StudentLoanRiskModels:
         return metrics
     
     def select_best_model(self) -> None:
-        """Select the best model based on test AUC score."""
+        """Select the best model based on test performance, avoiding overfitted models."""
         
         if not self.model_scores:
             print("No models have been trained yet.")
             return
         
-        best_auc = 0
+        best_score = 0
         best_name = None
         
+        print("Model performance comparison:")
+        # Prefer models that aren't perfectly overfitted (accuracy < 1.0)
+        # Use F1 score as primary metric with overfitting penalty
         for model_name, results in self.model_scores.items():
-            if results['test_auc'] > best_auc:
-                best_auc = results['test_auc']
+            f1_score = results.get('test_f1', 0)
+            accuracy = results.get('test_accuracy', 0)
+            auc = results.get('test_auc', 0)
+            
+            # Penalize perfect accuracy (likely overfitted)
+            if accuracy >= 1.0:
+                adjusted_score = f1_score * 0.9  # 10% penalty for overfitting
+                print(f"  {model_name}: F1={f1_score:.4f}, Acc={accuracy:.4f} (OVERFITTED), Adjusted={adjusted_score:.4f}")
+            else:
+                adjusted_score = f1_score
+                print(f"  {model_name}: F1={f1_score:.4f}, Acc={accuracy:.4f}, Score={adjusted_score:.4f}")
+            
+            if adjusted_score > best_score:
+                best_score = adjusted_score
                 best_name = model_name
         
         self.best_model_name = best_name
         self.best_model = self.models[best_name]
         
-        print(f"\nBest model: {best_name} (AUC: {best_auc:.4f})")
+        print(f"\nSelected best model: {best_name} (Adjusted Score: {best_score:.4f})")
     
     def get_feature_importance(self, model_name: Optional[str] = None) -> pd.DataFrame:
         """Get feature importance from a trained model."""
