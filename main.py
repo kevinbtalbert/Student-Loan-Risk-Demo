@@ -107,9 +107,15 @@ def train_models() -> bool:
         ml_models = StudentLoanRiskModels()
         results = ml_models.train_all_models(X_train, y_train, X_test, y_test)
         
-        # Save models
+        # Save models and preprocessor
         os.makedirs('models', exist_ok=True)
         ml_models.save_models('models')
+        
+        # Save the fitted preprocessor 
+        import joblib
+        preprocessor_path = 'models/fitted_preprocessor.joblib'
+        joblib.dump(preprocessor, preprocessor_path)
+        print(f"✓ Fitted preprocessor saved to {preprocessor_path}")
         
         # Generate and save report
         report = ml_models.generate_model_report()

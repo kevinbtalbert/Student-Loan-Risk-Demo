@@ -11,11 +11,12 @@ imbalanced-learn>=0.11.0
 requests>=2.31.0
 pyyaml>=6.0.0
 joblib>=1.3.0
+openpyxl>=3.1.5
 
 # Jupyter environment (optional for CML deployment)
 jupyter>=1.0.0
 jupyterlab>=4.0.0
 
-# CML/CDSW packages (install these separately in CML environment)
-# cloudml  # Not available on PyPI - use CML built-in
-# cdsw     # Pre-installed in CML environments
+# CML/CDSW packages (pre-installed in CML environment)
+# cmlapi  # Pre-installed in CML - used by create_model.py
+# cdsw    # Pre-installed in CML environments
