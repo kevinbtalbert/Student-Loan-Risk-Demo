@@ -201,20 +201,35 @@ def connect_to_impala():
 def create_database(conn):
     """Create the LoanTechSolutions database."""
     try:
-        print(f"🏗️  Creating database: {DATABASE_NAME}")
+        print(f"🏗️  Setting up database: {DATABASE_NAME}")
         
         # Get cursor for executing SQL
         cursor = conn.get_cursor()
         
-        # Drop database if exists (cascade to remove all tables)
-        drop_db_sql = f"DROP DATABASE IF EXISTS {DATABASE_NAME} CASCADE"
-        cursor.execute(drop_db_sql)
-        print(f"🗑️  Dropped existing database {DATABASE_NAME} (if it existed)")
+        # Check if database exists first (case-insensitive check)
+        database_exists = False
+        try:
+            databases_df = conn.get_pandas_dataframe("SHOW DATABASES")
+            # Check both exact match and case-insensitive match
+            database_names = [db.lower() for db in databases_df['name'].values]
+            if DATABASE_NAME.lower() in database_names:
+                database_exists = True
+                print(f"🗑️  Dropping existing database {DATABASE_NAME} and all its tables")
+                drop_db_sql = f"DROP DATABASE IF EXISTS {DATABASE_NAME} CASCADE"
+                cursor.execute(drop_db_sql)
+                print(f"✅ Dropped existing database {DATABASE_NAME}")
+            else:
+                print(f"ℹ️  Database {DATABASE_NAME} doesn't exist yet")
+        except Exception as check_error:
+            print(f"⚠️  Could not check existing databases: {str(check_error)}")
         
-        # Create new database
-        create_db_sql = f"CREATE DATABASE {DATABASE_NAME}"
+        # Create new database (use IF NOT EXISTS for safety)
+        create_db_sql = f"CREATE DATABASE IF NOT EXISTS {DATABASE_NAME}"
         cursor.execute(create_db_sql)
-        print(f"✅ Created database: {DATABASE_NAME}")
+        if database_exists:
+            print(f"✅ Recreated database: {DATABASE_NAME}")
+        else:
+            print(f"✅ Created database: {DATABASE_NAME}")
         
         # Use the new database
         use_db_sql = f"USE {DATABASE_NAME}"
@@ -235,6 +250,9 @@ def create_table(conn, table_name, schema_info):
         # Get cursor for executing SQL
         cursor = conn.get_cursor()
         
+        # Ensure we're in the correct database
+        cursor.execute(f"USE {DATABASE_NAME}")
+        
         # Build column definitions
         column_defs = []
         for col_name, col_type in schema_info["columns"]:
@@ -242,9 +260,9 @@ def create_table(conn, table_name, schema_info):
         
         columns_sql = ",\n    ".join(column_defs)
         
-        # Create table SQL
+        # Create table SQL with fully qualified name
         create_table_sql = f"""
-        CREATE TABLE {table_name} (
+        CREATE TABLE {DATABASE_NAME}.{table_name} (
             {columns_sql}
         )
         STORED AS TEXTFILE
@@ -253,7 +271,7 @@ def create_table(conn, table_name, schema_info):
         cursor.execute(create_table_sql)
         cursor.close()
         
-        print(f"✅ Created table: {table_name}")
+        print(f"✅ Created table: {DATABASE_NAME}.{table_name}")
         print(f"   📝 Description: {schema_info['description']}")
         print(f"   📊 Columns: {len(schema_info['columns'])}")
         
@@ -271,10 +289,18 @@ def load_csv_to_table(conn, table_name, csv_file_path):
             print(f"⚠️  Warning: File {csv_file_path} not found, skipping...")
             return
         
-        # Read CSV file
+        # Read CSV file - limit to first 100 rows for demo
         df = pd.read_csv(csv_file_path)
+        original_rows = len(df)
+        
+        # Limit to first 100 rows for faster demo loading
+        if original_rows > 100:
+            df = df.head(100)
+            print(f"   📊 Limited to first 100 rows (original: {original_rows:,} rows)")
+        else:
+            print(f"   📊 Using all {original_rows:,} rows (less than 100)")
+        
         total_rows = len(df)
-        print(f"   📊 Loaded {total_rows:,} rows from CSV")
         
         if total_rows == 0:
             print(f"⚠️  Warning: No data in {csv_file_path}, skipping...")
@@ -314,10 +340,12 @@ def load_csv_to_table(conn, table_name, csv_file_path):
             try:
                 # Create placeholder string for values
                 placeholders = ", ".join(["%s"] * len(available_columns))
-                insert_sql = f"INSERT INTO {table_name} VALUES ({placeholders})"
+                insert_sql = f"INSERT INTO {DATABASE_NAME}.{table_name} VALUES ({placeholders})"
                 
                 # Execute batch insert using cursor
                 cursor = conn.get_cursor()
+                # Ensure we're in the correct database
+                cursor.execute(f"USE {DATABASE_NAME}")
                 for row_data in chunk:
                     cursor.execute(insert_sql, row_data)
                 cursor.close()
@@ -334,7 +362,7 @@ def load_csv_to_table(conn, table_name, csv_file_path):
         print(f"✅ Successfully loaded {total_inserted:,} rows into {table_name}")
         
         # Verify data was loaded
-        count_sql = f"SELECT COUNT(*) as row_count FROM {table_name}"
+        count_sql = f"SELECT COUNT(*) as row_count FROM {DATABASE_NAME}.{table_name}"
         result = conn.get_pandas_dataframe(count_sql)
         actual_count = result['row_count'].iloc[0]
         print(f"   ✅ Verification: {actual_count:,} rows in table")
@@ -353,8 +381,8 @@ def show_database_summary(conn):
         # Show database info
         print(f"🏛️  Database: {DATABASE_NAME}")
         
-        # Show tables and row counts
-        tables_sql = "SHOW TABLES"
+        # Show tables and row counts - use the specific database
+        tables_sql = f"SHOW TABLES IN {DATABASE_NAME}"
         tables_df = conn.get_pandas_dataframe(tables_sql)
         
         print(f"📋 Tables created: {len(tables_df)}")
@@ -363,7 +391,7 @@ def show_database_summary(conn):
         total_rows = 0
         for table_name in tables_df['name']:
             try:
-                count_sql = f"SELECT COUNT(*) as row_count FROM {table_name}"
+                count_sql = f"SELECT COUNT(*) as row_count FROM {DATABASE_NAME}.{table_name}"
                 result = conn.get_pandas_dataframe(count_sql)
                 row_count = result['row_count'].iloc[0]
                 total_rows += row_count

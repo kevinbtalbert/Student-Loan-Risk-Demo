@@ -11,6 +11,11 @@ This project demonstrates a complete end-to-end ML pipeline for identifying stud
 - **StudentCare Solutions**: Follow-up services provider (recipient of risk predictions)
 - **Platform**: Cloudera Machine Learning (CML)
 
+### Requirements
+- **Python 3.11** (required for ML libraries and CML compatibility)
+- **Cloudera Machine Learning environment**
+- **Kerberos authentication** for data warehouse access
+
 ### Objective
 Deliver accurate delinquency risk predictions through a production-ready ML model deployed on Cloudera ML, with integrated data warehouse capabilities for comprehensive analytics.
 
@@ -34,7 +39,20 @@ Deliver accurate delinquency risk predictions through a production-ready ML mode
 
 Follow these 5 steps to run the complete demo:
 
+### ⚡ Expected Runtime
+- **Step 1**: ~2 minutes (dependency installation)
+- **Step 2**: ~3-5 minutes (data generation + model training)
+- **Step 3**: ~1-2 minutes (database loading with 100 rows per table)
+- **Step 4**: ~2-3 minutes (model deployment)
+- **Step 5**: Interactive (notebook demonstration)
+- **Total**: ~10-15 minutes for complete setup
+
 ### Step 1: Install Dependencies
+
+**Prerequisites:**
+- **Python 3.11** (required for compatibility)
+- Cloudera Machine Learning environment
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -52,13 +70,29 @@ This will:
 - Prepare model artifacts for deployment
 
 ### Step 3: Load Data into Data Warehouse
+
+**Prerequisites:**
+- Ensure you have Kerberos authentication: `kinit <username>`
+- Ensure you have CREATE DATABASE permissions in Impala
+
 ```bash
-python load_data_simple.py
+python load_student_loan_data.py
 ```
+
 This will:
-- Create the `LoanTechSolutions` database in Impala
-- Load all 7 generated datasets (~15,000+ total rows)
-- Set up tables for analytics and reporting
+- Create the `LoanTechSolutions` database (drops existing if present)
+- Load first 100 rows from each of the 7 generated datasets (~700 total rows for fast demo)
+- Create properly structured tables with defined schemas
+- Provide detailed progress tracking and verification
+
+**What gets loaded:**
+- `student_loan_borrowers` - Borrower demographics (100 rows)
+- `student_loan_education` - Educational background (100 rows)  
+- `student_loan_loans` - Individual loan details (100 rows)
+- `student_loan_payments` - Payment history (100 rows)
+- `student_loan_delinquency_features` - Risk indicators (100 rows)
+- `student_loan_master_dataset` - Combined ML training data (100 rows)
+- `realistic_student_loan_dataset` - Large-scale realistic data (100 rows)
 
 ### Step 4: Deploy the Model
 ```bash
