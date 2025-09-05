@@ -27,12 +27,12 @@ Deliver accurate delinquency risk predictions through a production-ready ML mode
 │ (Synthetic)     │    │  (Multiple       │    │  (Cloudera ML API)  │
 │                 │    │   Algorithms)    │    │                     │
 └─────────────────┘    └──────────────────┘    └─────────────────────┘
-          │                                                   │
-          ▼                                                   ▼
-┌─────────────────┐                               ┌─────────────────────┐
-│ Data Warehouse  │                               │   Jupyter Demo      │
-│ (Impala)        │                               │  (model_demo.ipynb) │
-└─────────────────┘                               └─────────────────────┘
+          │                                                │
+          ▼                                                ▼
+┌─────────────────┐                            ┌─────────────────────┐
+│ Data Warehouse  │                            │   Jupyter Demo      │
+│ (Impala)        │                            │  (model_demo.ipynb) │
+└─────────────────┘                            └─────────────────────┘
 ```
 
 ## 🚀 Complete Demo Workflow
@@ -50,7 +50,7 @@ Follow these 5 steps to run the complete demo:
 ### Step 1: Install Dependencies
 
 **Prerequisites:**
-- **Python 3.11** (required for compatibility)
+- **Python 3.11** Runtime (required for compatibility with requirements file)
 - Cloudera Machine Learning environment
 
 ```bash
@@ -72,7 +72,7 @@ This will:
 ### Step 3: Load Data into Data Warehouse
 
 **Prerequisites:**
-- Ensure you have Kerberos authentication: `kinit <username>`
+- Ensure you have authentication via Workload Password (set up inside User Settings --> Workload Password)
 - Ensure you have CREATE DATABASE permissions in Impala
 
 ```bash
@@ -123,7 +123,6 @@ Student-Loan-Risk-Demo/
 ├── model_api.py                      # CML model serving code
 ├── model_demo.ipynb                  # Interactive validation notebook
 ├── load_data_simple.py              # Data warehouse loading
-├── test_impala_connection.py         # Connection testing utility
 │
 ├── utils/                            # Core utilities
 │   ├── data_generator.py             # Synthetic data generation
