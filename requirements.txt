@@ -12,6 +12,8 @@ requests>=2.31.0
 pyyaml>=6.0.0
 joblib>=1.3.0
 openpyxl>=3.1.5
+aws>=0.2.5
+boto3>=1.34.162
 
 # Jupyter environment (optional for CML deployment)
 jupyter>=1.0.0

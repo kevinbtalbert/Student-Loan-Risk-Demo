@@ -104,11 +104,25 @@ This will:
 - Configure auto-scaling and monitoring
 
 ### Step 5: Validate with Jupyter Notebook
-Open and run `model_demo.ipynb` to:
+
+**Option A: Standard Model Demo**
+```bash
+jupyter notebook model_demo.ipynb
+```
 - Test the deployed model API
 - Run predictions on sample borrowers
 - Visualize risk assessment results
 - Validate end-to-end functionality
+
+**Option B: Natural Language Risk Assessment** 
+```bash
+jupyter notebook natural_language_risk_assessment.ipynb
+```
+AI-powered interface featuring:
+- Borrower lookup by ID (e.g., `BOR_000001`)
+- ML model risk prediction
+- AWS Bedrock natural language reports
+- Professional risk assessment narratives
 
 ---
 
