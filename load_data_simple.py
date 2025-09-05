@@ -27,11 +27,16 @@ def load_all_data():
     conn = cmldata.get_connection(CONNECTION_NAME)
     
     try:
-        # Create database
+        # Create database using cursor interface
         print(f"🏗️  Setting up database: {DATABASE_NAME}")
-        conn.execute(f"DROP DATABASE IF EXISTS {DATABASE_NAME} CASCADE")
-        conn.execute(f"CREATE DATABASE {DATABASE_NAME}")
-        conn.execute(f"USE {DATABASE_NAME}")
+        cursor = conn.get_cursor()
+        
+        # Drop and create database
+        cursor.execute(f"DROP DATABASE IF EXISTS {DATABASE_NAME} CASCADE")
+        cursor.execute(f"CREATE DATABASE {DATABASE_NAME}")
+        cursor.execute(f"USE {DATABASE_NAME}")
+        
+        cursor.close()
         
         # Get list of CSV files
         csv_files = [f for f in os.listdir(DATA_PATH) if f.endswith('.csv')]
@@ -59,8 +64,50 @@ def load_all_data():
                 
                 # Use pandas to_sql for easier loading
                 # Note: This creates the table automatically
-                engine = conn.get_base_connection()
-                df.to_sql(name=table_name, con=engine, if_exists='replace', index=False, method='multi')
+                try:
+                    # Get SQLAlchemy engine for pandas
+                    engine = conn.get_base_connection()
+                    df.to_sql(name=table_name, con=engine, if_exists='replace', index=False, method='multi')
+                except Exception as sql_error:
+                    # Fallback: Use cursor method for manual insert
+                    print(f"   ⚠️  to_sql failed, using manual insert: {str(sql_error)}")
+                    cursor = conn.get_cursor()
+                    
+                    # Create table manually
+                    columns = []
+                    for col in df.columns:
+                        if df[col].dtype == 'object':
+                            col_type = 'STRING'
+                        elif df[col].dtype == 'int64':
+                            col_type = 'BIGINT'
+                        elif df[col].dtype == 'float64':
+                            col_type = 'DOUBLE'
+                        else:
+                            col_type = 'STRING'
+                        columns.append(f"{col} {col_type}")
+                    
+                    create_sql = f"CREATE TABLE {table_name} ({', '.join(columns)})"
+                    cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
+                    cursor.execute(create_sql)
+                    
+                    # Insert data in batches
+                    batch_size = 1000
+                    for i in range(0, len(df), batch_size):
+                        batch = df.iloc[i:i+batch_size]
+                        for _, row in batch.iterrows():
+                            values = []
+                            for val in row:
+                                if pd.isna(val):
+                                    values.append('NULL')
+                                elif isinstance(val, str):
+                                    values.append(f"'{val.replace(\"'\", \"''\")'")
+                                else:
+                                    values.append(str(val))
+                            
+                            insert_sql = f"INSERT INTO {table_name} VALUES ({', '.join(values)})"
+                            cursor.execute(insert_sql)
+                    
+                    cursor.close()
                 
                 print(f"   ✅ Loaded {len(df):,} rows into {table_name}")
                 total_rows_loaded += len(df)

@@ -203,20 +203,25 @@ def create_database(conn):
     try:
         print(f"🏗️  Creating database: {DATABASE_NAME}")
         
+        # Get cursor for executing SQL
+        cursor = conn.get_cursor()
+        
         # Drop database if exists (cascade to remove all tables)
         drop_db_sql = f"DROP DATABASE IF EXISTS {DATABASE_NAME} CASCADE"
-        conn.execute(drop_db_sql)
+        cursor.execute(drop_db_sql)
         print(f"🗑️  Dropped existing database {DATABASE_NAME} (if it existed)")
         
         # Create new database
         create_db_sql = f"CREATE DATABASE {DATABASE_NAME}"
-        conn.execute(create_db_sql)
+        cursor.execute(create_db_sql)
         print(f"✅ Created database: {DATABASE_NAME}")
         
         # Use the new database
         use_db_sql = f"USE {DATABASE_NAME}"
-        conn.execute(use_db_sql)
+        cursor.execute(use_db_sql)
         print(f"📂 Now using database: {DATABASE_NAME}")
+        
+        cursor.close()
         
     except Exception as e:
         print(f"❌ Error creating database: {str(e)}")
@@ -226,6 +231,9 @@ def create_table(conn, table_name, schema_info):
     """Create a table with the specified schema."""
     try:
         print(f"📋 Creating table: {table_name}")
+        
+        # Get cursor for executing SQL
+        cursor = conn.get_cursor()
         
         # Build column definitions
         column_defs = []
@@ -242,7 +250,9 @@ def create_table(conn, table_name, schema_info):
         STORED AS TEXTFILE
         """
         
-        conn.execute(create_table_sql)
+        cursor.execute(create_table_sql)
+        cursor.close()
+        
         print(f"✅ Created table: {table_name}")
         print(f"   📝 Description: {schema_info['description']}")
         print(f"   📊 Columns: {len(schema_info['columns'])}")
@@ -306,8 +316,11 @@ def load_csv_to_table(conn, table_name, csv_file_path):
                 placeholders = ", ".join(["%s"] * len(available_columns))
                 insert_sql = f"INSERT INTO {table_name} VALUES ({placeholders})"
                 
-                # Execute batch insert
-                conn.executemany(insert_sql, chunk)
+                # Execute batch insert using cursor
+                cursor = conn.get_cursor()
+                for row_data in chunk:
+                    cursor.execute(insert_sql, row_data)
+                cursor.close()
                 total_inserted += len(chunk)
                 
                 if len(chunks) > 1:  # Only show progress for large tables
