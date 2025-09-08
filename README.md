@@ -35,6 +35,7 @@ Deliver accurate delinquency risk predictions through a production-ready ML mode
 │ (Impala)        │                            │  (model_demo.ipynb) │
 └─────────────────┘                            └─────────────────────┘
 ```
+![](architecture.png)
 
 ## 🚀 Complete Demo Workflow
 
